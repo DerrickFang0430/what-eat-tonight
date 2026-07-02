@@ -291,6 +291,8 @@ function animate(){
      spinning=false;
      decelerating=false;
      speed=0;
+
+     drawWheel(); // 保证最后一帧已渲染
      showResult();
      return;
    }
@@ -313,11 +315,24 @@ function requestStop(){
 }
 
 function showResult(){
- let normalized=((angle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
- let slice=(Math.PI*2)/options.length;
- let index=Math.floor(((Math.PI*2)-normalized)/slice)%options.length;
- document.getElementById("resultText").innerText=options[index];
- document.getElementById("modal").style.display="flex";
+    const full = Math.PI * 2;
+    const slice = full / options.length;
+
+    let normalized = ((angle % full) + full) % full;
+
+    // 指针固定在顶部
+    const pointerAngle = 3 * Math.PI / 2;
+
+    // 计算指针落在哪个扇区
+    let hitAngle = (pointerAngle - normalized + full) % full;
+
+    // 加半个扇区避免边界误判
+    hitAngle = (hitAngle + slice / 2) % full;
+
+    const index = Math.floor(hitAngle / slice);
+
+    document.getElementById("resultText").innerText = options[index];
+    document.getElementById("modal").style.display = "flex";
 }
 
 function closeModal(){
